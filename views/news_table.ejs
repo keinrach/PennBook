@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<style>
+#customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#customers td, #customers th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: lightblue;
+  color: black;
+}
+</style>
+
+<script>
+	
+	
+</script>
+</head>
+
+<body>
+
+<p> <font size="5" face="Verdana"> <strong> Some news for you! </strong> </font> </p>
+
+<table id = "customers">
+  <tr>
+  <th>title</th>
+  <th>url</th>
+  
+  </tr>
+  
+  <% for(var i=0; i<items.length; i++) {%>
+  	<%if (i < 10) {%>
+   <tr>
+     <td>
+       <%= items[i][0]%>
+     </td>
+     <td>
+       <a href = "<%= items[i][1]%>"><%= items[i][1]%></a>
+     </td>
+     
+   </tr>
+   <%}%>
+ <% } %>
+ 
+  
+  </table>
+
+
+
+</body>
+</html>

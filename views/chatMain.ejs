@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Main Chat Page</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style type="text/css">
+		body {
+			padding-top: 40px;
+			padding-bottom: 40px;
+			background-color: lightblue;
+		}
+
+		.newChat {
+			max-width: 500px;
+			margin: 0 auto;
+		}
+
+		.newChat .form-control {
+			margin-bottom: 10px;
+		}
+
+		.previousChats {
+			max-width: 500px;
+			margin: 0 auto;
+		}
+
+		.previousChats .form-control {
+			margin-bottom: 10px;
+		}
+
+		table, th, td {
+			border: 1px solid black;
+		}
+	</style>
+</head>
+
+<body>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		function joinChat(gID) {	
+			console.log(gID);
+			$.get('/joinchat/' + gID, function (data) {
+				console.log("Hi");
+				window.location.assign('/chatbox/' + gID);
+			});
+		}
+	</script>
+	<main>
+		<div class="newChat">
+			<div class="wrapper">
+				<h1 class="fadeIn zeroth"><span>Start a New Chat</span></h1>
+				<form action="/startchat" method="post">
+					<label for="userName">Enter the usernames of the users you would like to chat, separated by commas:
+					</label><br>
+					<input type="text" id="usernamesToChat" name="usernamesToChat" size="20" class="form-control"><br>
+					<input type="submit" id="roomBtn" value="Start Chat"><br>
+				</form>
+			</div>
+		</div>
+
+		<div class="previousChats">
+			<div class="wrapper">
+				<h1 class="fadeIn zeroth"><span>Previous Chats</span></h1>
+				<table style="width:100%">
+					<tr>
+					  <th>Group ID</th>
+					  <th>Users in Chat</th>
+					  <th></th>
+					</tr>
+					<% for (let i = 0; i < data.Items.length ; i++) { %>
+					<tr>
+					  <th><%= data.Items[i].groupID.S %></th>
+					  <th><%= data.Items[i].users.S %></th>
+					  <th>
+						<button type="button" id="join-btn" class="btn btn-lg btn-primary btn-block" onclick="return joinChat('<%= data.Items[i].groupID.S %>')"><b>Join Chat</b>
+						</button>
+					  </th>
+					</tr>
+					<% } %>
+				</table>
+				<p></p>
+				<a href="/homepage">Click HERE to go back to Homepage.</a><br>
+			</div>
+		</div>
+		
+		
+
+	</main>
+</body>
+
+</html>

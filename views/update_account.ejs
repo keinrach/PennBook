@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pennbook</title>
+	<link rel="stylesheet"
+		href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <style type="text/css">
+    body {
+    padding-top: 60px;
+    padding-bottom: 60px;
+    background-color: lightblue;
+    }
+    .signup-box {
+    max-width: 300px;
+    margin: 0 auto;
+    }
+    .signup .form-control {
+    margin-bottom: 15px;
+    }
+ </style>
+</head>
+
+<body>
+ <div class="signup-box">
+  <h1>Pennbook</h1>
+  <p>Update account below</p>
+  <form action="/updateaccountinfo" method="post">
+    <label>Full Name (First Last):</label>
+    <input type="text" name="fullname">
+    <br />
+    <label>New password:</label>
+    <input type="password" name="password" id = "password"> <br>
+    <input type="checkbox" onclick="showPassword()">Show Password
+    <br />
+    <label>New email:</label>
+    <input type="text" name="email">
+    <br />
+    <label>New affiliation:</label>
+    <input type="text" name="affiliation">
+    <br />
+    <label>New birthday (format: YYYYMMDD):</label>
+    <input type="text" name="birthday">
+    <br />
+    <label>New interests:</label>
+    <select name="interests" id="interests" multiple>
+      <option value="ARTS">ARTS</option>
+      <option value="ARTS & CULTURE">ARTS & CULTURE</option>
+      <option value="BLACK VOICES">BLACK VOICES</option>
+      <option value="BUSINESS">BUSINESS</option>
+      <option value="COLLEGE">COLLEGE</option>
+      <option value="COMEDY">COMEDY</option>
+      <option value="CRIME">CRIME</option>
+      <option value="EDUCATION">EDUCATION</option>
+      <option value="ENTERTAINMENT">ENTERTAINMENT</option>
+      <option value="FIFTY">FIFTY</option>
+      <option value="GOOD NEWS">GOOD NEWS</option>
+      <option value="GREEN">GREEN</option>
+      <option value="HEALTHY LIVING">HEALTHY LIVING</option>
+      <option value="IMPACT">IMPACT</option>
+      <option value="LATINO VOICES">LATINO VOICES</option>
+      <option value="MEDIA">MEDIA</option>     
+      
+      <option value="PARENTS">PARENTS</option>
+      <option value="POLITICS">POLITICS</option>
+      <option value="QUEER VOICES">QUEER VOICES</option>
+      <option value="RELIGION">RELIGION</option>
+      <option value="SCIENCE">SCIENCE</option>
+      <option value="SPORTS">SPORTS</option>
+      <option value="STYLE">STYLE</option>
+      <option value="TASTE">TASTE</option>
+      <option value="TECH">TECH</option>  
+      <option value="THE WORLDPOST">THE WORLDPOST</option>
+      <option value="TRAVEL">TRAVEL</option>
+      <option value="WEIRD NEWS">WEIRD NEWS</option>
+      <option value="WOMEN">WOMEN</option>
+      <option value="WORLD NEWS">WORLD NEWS</option>
+      <option value="WORLDPOST">WORLDPOST</option>
+
+    </select>
+    <br />    
+    <input type="submit" value="Update Account">
+  </form>
+
+
+ </div> 
+</body>
+</html>

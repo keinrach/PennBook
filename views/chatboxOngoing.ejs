@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Main Chat Page</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style type="text/css">
+        body {
+            padding-top: 40px;
+            padding-bottom: 40px;
+            background-color: lightblue;
+        }
+
+        .top {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .top .form-control {
+            margin-bottom: 10px;
+        }
+
+        .bottom {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .bottom .form-control {
+            margin-bottom: 10px;
+        }
+
+        .sender {
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <p hidden id="groupID"><%= groupID %> </p>
+    <p hidden id="username"><%= username %> </p>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+
+        var socket = io();
+        var id = document.getElementById("username").innerHTML;
+        console.log("userID:" + id);
+
+        var valGroupID = document.getElementById("groupID").innerHTML;
+        console.log("GroupID:" + valGroupID);
+
+        console.log("Here");
+
+        function sendChat() {
+            if ($('#input').val().trim() !== '') {
+                socket.emit('chat message', {
+                    text: $('#input').val().trim(),
+                    sender: id,
+                    room: valGroupID
+                });
+
+                $.post('/sendmessage', { room: valGroupID, text: $('#input').val().trim(), sender: id });
+
+                $('#input').val('');
+                $('#input').focus();
+            }
+
+        }
+
+        socket.on('chat message', function (msg) {
+            console.log("client has it", msg);
+            var message_temp = document.createElement("li");
+            if (id === msg.sender) {
+                message_temp.setAttribute("class", "sender");
+            } else {
+                message_temp.setAttribute("class", "other");
+            }
+            message_temp.appendChild(document.createTextNode(msg.text))
+            $('#messages').append(message_temp);
+            $('#messages').animate({
+                scrollTop: $('#messages').get(0).scrollHeight
+            }, 0);
+        });
+
+        $(document).ready(function () {
+            socket.emit("join room", valGroupID);
+        });
+
+    </script>
+    <script type="text/javascript">
+		function leaveChat() {	
+            $.post('/leavechat', { gID: valGroupID }, function (data) {
+                window.location.assign('/chatmain');
+                
+            });
+            
+        }
+        function addUser(username) {
+            console.log(username);
+            $.post('/adduser', { gID: valGroupID, newUser: username }, function (data) {
+                alert(data);
+            });
+            document.getElementById('newUser').value = "";
+        }
+
+	</script>
+    <main>
+        <div class="top">
+            <ul style="list-style-type:none;">
+                <% for (let i = 0; i < data.Items.length ; i++) { %>
+                    <% if (data.Items[i].sender.S === username) { %>
+                        <li class="sender"><%= data.Items[i].text.S %></li>   
+                    <% } else { %> 
+                        <li><%= data.Items[i].text.S %></li>
+                    <% } %>
+                <% } %>
+            </ul>
+
+        </div>
+        <div class="bottom">
+            <div>
+                <ul id="messages" style="list-style-type:none;">
+                </ul>
+            </div>
+            <form id="message-form">
+                <div id="form-message">
+                    <input class="form-control" id="input" autocomplete="off" placehold="type a message..."
+                        onfocus="this.placeholder = ''" onblur="this.placeholder = 'type a message...'">
+                    <button type="button" id="send-btn" class="btn btn-light" onclick="return sendChat();"><i
+                            class="material-icons" style="font-size:26px;">send</i>
+                    </button>
+                </div>
+            </form>
+            <p></p>
+            <a href="/chatmain">Click HERE to go back to Chat Main Page.</a><br>
+            <p></p>
+            <button type="button" id="leave-btn" class="btn btn-lg btn-primary btn-block" onclick="return leaveChat()"><b>LEAVE Chat</b>
+            </button>
+            <p></p>
+            <p></p>
+            <form id="add-user-form">
+                <div id="form-message">
+                    <label for="userName">To add a new user to this chat, type their username below and press ADD User.
+                    </label><br>
+                    <input class="form-control" id="newUser">
+                    <button type="button" id="add-user-btn" class="btn btn-lg btn-primary btn-block"
+                        onclick="return addUser(document.getElementById('newUser').value);">
+                        ADD User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+
+</html>

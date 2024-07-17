@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Pennbook</title>
+	<link rel="stylesheet"
+		href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <style type="text/css">
+    body {
+    padding-top: 60px;
+    padding-bottom: 60px;
+    background-color: lightblue;
+    }
+    .homepage-box {
+    max-width: 300px;
+    margin: 0 auto;
+    }
+    .homepage-box .form-control {
+    margin-bottom: 15px;
+    }
+ </style>
+</head>
+
+<body>
+ <div class="homepage-box">
+  <h1>Pennbook homepage:</h1>
+
+  <p>What's on your mind?</p>
+  <form action="/addfriend" method="post">
+    <label>Username:</label>
+    <input type="text" name="creator">
+    <br />
+    <label>Post:</label>
+    <input type="text" name="name" id = "rest">
+    <br />
+ 
+    <input type="submit" value="Add" id="submit">
+  </form>
+
+  <a href="/logout">Logout</a>
+</div>
+</body>
+</html>

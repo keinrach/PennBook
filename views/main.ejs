@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pennbook</title>
+	<link rel="stylesheet"
+		href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <style type="text/css">
+    body {
+    padding-top: 60px;
+    padding-bottom: 60px;
+    background-color: lightblue;
+    }
+    .login-box {
+    max-width: 300px;
+    margin: 0 auto;
+    }
+    .login-box .form-control {
+    margin-bottom: 15px;
+    }
+ </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Pennbook: User Login</h2>
+    
+    <form method="post" action="checkLogin">
+    <input type="text" name="username" size="20" class="form-control" placeholder="Username">
+    <input type="password" name="password" size="20" id = "password" class="form-control" placeholder="Password">
+    <input type="checkbox" onclick="showPassword()">Show Password
+    <input type="submit" name="xyz" value="Login" class="btn btn-lg btn-primary btn-block">
+    </form>
+    <br />
+    <p>New user? Sign up <a href="/signup" >here</a>.</p>
+    <h5>Made by Nai Ming Chen (nchennm)</h5>
+  </div>
+</body>
+
+<script>
+  function showPassword() {
+  var x = document.getElementById("password");
+  if (x.type === "password") {
+    x.type = "text";
+  } else {
+    x.type = "password";
+  }
+  }
+</script>
+
+</html>

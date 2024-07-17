@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><%= owner.owner%>'s wall</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <style>    
+    /* Set black background color, white text and some padding */
+    footer {
+      background-color: #555;
+      color: white;
+      padding: 15px;
+    }
+    
+    .navbar-custom { 
+            background-color: lightblue; 
+        }
+
+
+  </style>
+  
+  <style>    
+    /* Set black background color, white text and some padding */
+    footer {
+      background-color: #555;
+      color: white;
+      padding: 15px;
+    }
+    
+    .navbar-custom { 
+            background-color: lightblue; 
+        }
+    
+    .com-box {
+    	display:none;
+    }
+    
+    .pos {
+    	background-color:#FFFFFF;
+    	border-radius: 5px
+    }
+	
+	.old-comment {
+		background-color:#EBEBEB;
+	}
+	
+	.navbar-right {
+		position: relative;
+		display: inline-block;
+	}
+	
+	</style>
+	
+	<script>
+	  
+	  <!-- if typeof(user) != undefined: -->;
+	   var user =<%- JSON.stringify(user)  %> 
+	   var wall_posts = <%- JSON.stringify(owned_received_posts.wall_posts) %>;
+  	   var owned_posts = <%- JSON.stringify(owned_received_posts.owned_posts) %>;
+  	   var posts = wall_posts.concat(owned_posts); //post array
+	   //alert(JSON.stringify(posts));
+	   
+	   
+	   
+	   var post_ids=[]  //all post-ids
+
+	   var owner = <%- JSON.stringify(owner)  %>
+	   var ownername = owner.owner;
+	   //alert("owner:" + ownername);
+	   
+	   if (user == ownername) {
+	   		
+	   }
+	   
+	   
+	   var compare_user = []; //user array to be compared for each refresh
+	   var compare_posts = []; //post id array to be compared for each refresh
+	  
+	  function generate_id(array) { //take in all existing post ids [1,2,3,4,5].. push(obj.id)
+	  	var id = Math.ceil(Math.random()*10);
+	  	var idstr = "";
+	  	for (var i = 0; i < id; i++) {
+	  		idstr += Math.ceil(Math.random()*10)
+	  	}
+	  	
+	  	var id_ch = Math.ceil(Math.random()*10);
+	  	for (var i=0; i<id_ch; i++) {
+	  		var ranNum = Math.ceil(Math.random()*25);
+	  		idstr += (String.fromCharCode(65 + ranNum));
+	  	}
+	  	
+	  	
+	  	if (array.includes(id)) {
+	  		generate_id(array);
+	  	}
+	  	
+	  	return idstr;
+	  }
+	  
+	  <!--need to render friends, posts, comments-->
+	  function getNewPost() {
+	  		var n_p = document.getElementById("make_new_post").value;
+	  		var p_id = generate_id(post_ids);
+	  		var timestamp = Date.now();
+	  		
+	  		//alert(timestamp);
+	  		
+	  		$.ajax({
+		  	  method: "POST",
+			  url:"/addhomepost",
+			  data: {content: n_p, id: p_id, owner:user, receiver:ownername, timestamp: timestamp}, //
+			  error: function (e) {
+		        alert("failure: " + JSON.stringify(e));
+		      },
+		      success: function(msg) {
+		      	document.getElementById("make_new_post").value = "";
+		      	//createOnePost(user, n_p, p_id, "", user, ownername);
+		      	refreshPosts();
+		      	InsertOnePostBefore(user, n_p, p_id, "", user, ownername, post_ids[0]);
+		      	post_ids.unshift(p_id);
+		      	//alert("here");		      	
+		      	
+		      }
+			  })
+			  
+			  
+	  		//document.getElementById("post").value = "";
+	  		
+	  }
+	  
+	  function comment() {
+	  		$(document).ready(function(){
+		  	$("#comment").click(function(){
+		  	$("#2com-box").show();
+		  	});
+		  	
+			});
+	  }
+	  	
+		$(document).ready(function(){
+		  	$("#comment").click(function(){
+		  	$("#2com-box").show();
+		  	});
+		  	
+		  	$("#can_comment").click(function(){
+		  	$("#2com-box").hide();
+		  	});
+	  	
+		});
+
+  	 
+  		$(document).ready(function(){
+		  	$("#status").click(function(){
+		  	$("#status-box").show();
+		  	
+		  	});
+		  	
+		  	$("#can_status").click(function(){
+				  	$("#status-box").hide();});
+	  	
+		});
+	 
+	  
+	  function can_comment() {
+	  		$(document).ready(function(){
+		  	$("#can_comment").click(function(){
+		  	$("#com-box").hide();
+		  	});
+		  	
+			});
+	  }
+	  
+	  
+	  
+	  function commentpost(id,commentator) {
+	  		//alert("comment");
+	  		var new_comment = document.getElementById(id +"p").value;
+	  		//alert(new_status);
+	  		//alert(id+"commentcontent");
+	  		document.getElementById(id+"commentcontent").innerHTML += "<br \>" + commentator + ":" + new_comment + "<br \>";
+	  		//alert(document.getElementById(id+ "commentcontent").innerHTML);
+	  		$.ajax({
+		  	  method: "POST",
+			  url:"/updatestatus",
+			  data: {id:id, content: document.getElementById(id+"commentcontent").innerHTML, commentator:commentator}, 
+			  error: function (e) {
+		        alert("failure: " + JSON.stringify(e));
+		      },
+		      success: function(msg) {
+		      document.getElementById(id+"p").value="";
+		      	document.getElementById(id+"com-box").value = "";
+		      	//alert(document.getElementById(id+"commentcontent").innerHTML);
+		      	$("#" +id+"com-box").hide();
+		      	
+		      }
+			  })
+			  
+			//document.getElementById(id+"com-stat").value = "";
+			//$("#status-box").hide();
+	  }
+	  </script>
+</head>
+<body>
+<!-- will get the list of current friends, -->
+<nav class="navbar navbar-custom navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>                        
+      </button>
+      <a class="navbar-brand" href="#">PB</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="/homepage">Homepage</a></li>
+        <li><a href="/chatmain">Messages</a></li>
+        <li><a href="/news">News</a></li>
+        <li><a href="/visualizer">visualizer</a></li>
+      </ul>
+
+      
+    </div>
+  </div>
+</nav>
+
+<script>
+//var user_attr = <%- JSON.stringify(user_attributes) %>
+//
+
+function refreshUserAttr() {
+	$.ajax({
+	  	  url:"/refreshhome",
+		  method:"POST",
+		  error: function (e) {
+	        alert("failure: " + JSON.stringify(e));
+	      },
+          success: function(curr) {
+          	//alert(JSON.stringify(curr));
+          	if (JSON.stringify(curr.user_attributes[0].interests.S) == user_interests) {
+          		return;
+          	} else {
+          		//alert(JSON.stringify(curr.user_attributes.interests.split(",")));
+	          	var curr_userinter = JSON.stringify(curr.user_attributes[0].interests.S).split(",");
+	          	//alert(document.getElementById("interests_display").innerHTML);
+	          	document.getElementById("interests_display").innerHTML = "";
+	          	var count = 1;
+	          	for (i of curr_userinter) {
+	          		//alert(i);
+	          		if (count % 3 == 0) {
+		          		$("#interests_display").append("<span class='label label-default'>" + i + "</span>");
+		          		$("#interests_display").append("<br/>");
+	          		} else {
+	          			$("#interests_display").append("<span class='label label-default'>" + i + "</span> ");
+	          			$("#interests_display").append(" ");
+	          		}
+	          		
+	          		count++;
+	          	}
+	          	user_interests = JSON.stringify(curr.user_attributes[0].interests)
+	          	//alert(document.getElementById("interests_display").innerHTML);
+	          	setTimeout(function(){
+					refreshUserAttr(); //this will send request again and again;
+				}, 8000);
+			}
+          	
+          }
+          });
+}
+
+</script>
+  
+<div class="container text-center" style="overflow-y: scroll; margin-top:70px">    
+  
+    <div class="col-sm-3 well">
+      
+      <div class="well">
+        <p><a href="#">My Profile</a></p>
+      </div>
+      <div class="well">
+        <p><a href="#">Interests</a></p>
+        <p id = "interests_display">
+          <%if (typeof(JSON.stringify(user_attributes)) != undefined) { %>
+          	<%for (i of JSON.stringify(user_attributes[0].interests.S).split(",") ) {%>
+          		<span class="label label-default"><%-i%></span>
+          	<%} %>
+          <%} %>
+        </p>
+      </div>
+	  
+	  <% if (user == owner.owner) { %>
+      <p><a href="/update_account">edit profile</a></p>
+      <%}%>
+      
+      <div>
+      	<p><a href="/logout">log out</a></p>
+      </div>
+
+   	  
+    </div>
+    
+    <div class="col-sm-7">
+    
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="panel panel-default text-left">
+            <div class="panel-body">
+              <p > <strong>Welcome to <%= owner.owner%>'s wall</strong></p>   
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="panel panel-default text-left">
+            <div class="panel-body">
+              <form name="post" id="po" onsubmit="return false;">
+              	<p style = "font-family:georgia,garamond,serif;font-size:16px;font-style:italic;"> 
+              	<strong>Something to share?</strong> </P>
+			    <textarea name="description2" id="make_new_post" 
+					class="rte-zone" placeholder="What's on your mind?" rows="4" cols="60" style="max-width: 90%"></textarea>
+			    <br/>
+			    <input type="submit" value="post" id="submit" onclick=getNewPost()>
+			  </form>  
+			   
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="all_posts">
+
+     </div>
+      
+      <script>
+      	function sortObj(list, key) {
+		    function compare(a, b) {
+		        a = Number(a[key]);
+		        b = Number(b[key]);
+		        var type = (typeof(a) === 'string' ||
+		                    typeof(b) === 'string') ? 'string' : 'number';
+		        var result;
+		        if (type === 'string') result = b.localeCompare(a);
+		        else result = b - a;
+		        return result;
+		    }
+		    return list.sort(compare);
+		}
+		
+		//alert(JSON.stringify(sortObj([{id:{N:1}}, {id:{N:0.5}}], "id")));
+
+		var raw = [];
+		
+		for (var i =0; i < posts.length; i++) {
+			raw.push(posts[i].postid);
+			//post_ids.push(posts[i].postid);
+		}
+		//alert(JSON.stringify(raw));
+		
+		var duplicate_raw = [];
+	          		
+		for (p of posts) {
+			if (post_ids.includes(p.postid)) {
+				//alert("p.postid is " + p.postid);
+				var ind = posts.indexOf(p);
+				duplicate_raw.push(ind);
+				//sorted_curr_posts.splice(ind, 1);
+				continue;
+			}
+			//alert("p.postid is " + p.postid);
+			post_ids.push(p.postid);
+			
+		}
+		
+		//alert("initial duplicates are: " + JSON.stringify(duplicate_raw));
+		for (var i = duplicate_raw.length-1; i>=0; i--) {
+			posts.splice(i, 1);
+		}
+		posts = sortObj(posts, "timestamp");
+		//alert(JSON.stringify(posts));
+		post_ids=[];
+		
+		
+		for (p of posts) {
+			post_ids.push(p.postid);
+			createOnePost(p.owner, p.content,
+	          	p.postid, p.comments, user, p.receiver);
+		}
+		
+		
+		
+      	function refreshPosts() {
+      		$.ajax({
+		  	  url:"/refreshhome",
+			  method:"POST",
+			  error: function (e) {
+		        alert("failure: " + JSON.stringify(e));
+		      },
+	          success: function(curr) {
+	          	var curr_wall_posts = curr.owned_received_posts.wall_posts;
+	          	var curr_owned_posts = curr.owned_received_posts.owned_posts;
+	          	var curr_p = curr_wall_posts.concat(curr_owned_posts);
+	          	var curr_posts = sortObj(curr_p, "timestamp");
+	          	//var posts = sortObj(posts, "timestamp");
+	          	var curr_posts_string = JSON.stringify(curr_posts);
+	          	var posts_string = JSON.stringify(posts);
+	          	//alert(JSON.stringify(posts));
+	          	//alert(JSON.stringify(curr_posts));
+	          	//alert(curr_posts_string == posts_string);
+	          	
+	          	if (curr_posts_string !== posts_string) {
+	          		var sorted_curr_posts = sortObj(curr_posts, "timestamp");
+	          		var curr_ids = [];
+	          		var duplicate = [];
+	          		
+	       			for (p of sorted_curr_posts) {
+	       				if (curr_ids.includes(p.postid)) {
+	       					//alert("p.postid is " + p.postid);
+	       					var ind = sorted_curr_posts.indexOf(p);
+	       					duplicate.push(ind);
+	       					//sorted_curr_posts.splice(ind, 1);
+	       					continue;
+	       				}
+	       				//alert("p.postid is " + p.postid);
+	       				curr_ids.push(p.postid);
+	       				
+	       			}
+	       			
+	       			//alert("duplicates are: " + JSON.stringify(duplicate));
+	       			for (var i = duplicate.length-1; i>=0; i--) {
+	       				sorted_curr_posts.splice(i, 1);
+	       			}
+	          		//alert(JSON.stringify(sorted_curr_posts));
+	          		//var sorted_posts = sortObj(curr_posts, "timestamp");
+	          		//document.getElementById("all_posts").innerHTML="";
+	          		for (var i=sorted_curr_posts.length - 1; i>=0; i--) {
+	          			//alert(i);
+	          			//alert(JSON.stringify(sorted_curr_posts[i].postid));
+	          			
+	          			
+	          			if (i==sorted_curr_posts.length) {
+	          				break;
+	          			}
+	          			
+	          			if (post_ids.includes(sorted_curr_posts[i].postid)) {
+	          				if (document.getElementById(sorted_curr_posts[i].postid+"commentcontent").innerHTML !== sorted_curr_posts[i].comments) {
+	          					document.getElementById(sorted_curr_posts[i].postid+"commentcontent").innerHTML=sorted_curr_posts[i].comments;
+	          				}
+	          				continue; 
+	          			}
+	          			
+	          			//post_ids.unshift(sorted_curr_posts[i].postid);
+	          			var idafter = sorted_curr_posts[i+1].postid;
+	          			
+	          			//alert(sorted_curr_posts[i].owner.S + ":" +sorted_curr_posts[i].id.N);
+	          			//if (sorted_curr_posts[i].owner.S == ownername || sorted_curr_posts[i].owner.S == ""
+	          			//|| sorted_curr_posts[i].owner.S == ownername) { 
+	          				//alert(JSON.stringify([sorted_curr_posts[i].owner.S, sorted_curr_posts[i].content.S,
+	          				//sorted_curr_posts[i].id.N, sorted_curr_posts[i].comments.S, user, sorted_curr_posts[i].receiver.S]));
+	          				
+	          				InsertOnePostBefore(sorted_curr_posts[i].owner, sorted_curr_posts[i].content,
+	          				sorted_curr_posts[i].postid, sorted_curr_posts[i].comments, user, sorted_curr_posts[i].receiver, idafter);
+	          			//}
+	          		}
+	          		
+	          		for (var i = 0; i<post_ids.length; i++) {
+	          			if (curr_ids.includes(post_ids[i])) {
+	          				continue;
+	          			} else {
+	          				$("#"+post_ids[i]+"row").remove();
+	          			}
+	          		}
+	          		
+	          		posts = curr_posts;
+	          		post_ids = curr_ids;
+	          		//alert("this is curr ids: " + JSON.stringify(post_ids));
+	          		
+	          	}
+	          	setTimeout(function(){
+					refreshPosts(); //this will send request again and again;
+				}, 10000);
+	          }
+			  })
+      	}
+      	
+      	function InsertOnePostBefore(writer, post_content, post_id, comments, user, receiver, idafter) {
+      		//var post_id = JSON.stringify(post_id);
+      		
+      		//alert(JSON.stringify(post_id));
+      		if (receiver == "") {
+      		$("<div class='row' id='"+post_id+"row'><div class='col-sm-12'><div class='well' id =" + post_id + "><p style='text-align:left'>" + writer +": </p></div></div></div>").insertBefore("#" +idafter+"row");
+      		$("#" + post_id).append("<div class='pos'><p style='text-align:left; min-width: 90%; margin:0px 10px 10px 10px;'>" + post_content + "</p></div>");
+      		$("#" + post_id).append("<div class='old-comment'><p id='"+ post_id +"commentcontent', style='text-align:left; min-width: 90%; margin:20px;'>" +comments+"</p></div>");
+      		$("#" + post_id).append("<p align='right'><button class='btn btn-primary' id = '" +post_id +"commentBTN' >comment</button></p>");
+      		$("#" + post_id).append("<div class='com-box' id='" + post_id + "com-box' style='width:100%;'><p class='pr' align='left'><em class='pa'>" + user + 
+      		":</em><br><em></em><textarea name='newpost' id='" + post_id +
+      		"p' class='com' rows=3  style='min-width: 95%' placeholder='write your comments..'></textarea></p><p align='right'>" +
+			"<button id = po_comment onclick=commentpost(" + JSON.stringify(post_id) +",'" + user + "')>post</button> <button id = '" + post_id + "can_comment' >cancel</button> </p></div>");
+      		} else {
+      		$("<div class='row' id='"+post_id+"row'><div class='col-sm-12'><div class='well' id =" + post_id + "><p style='text-align:left'>" + writer + " to " + receiver +": </p></div></div></div>").insertBefore("#" +idafter+"row");
+      		$("#" + post_id).append("<div class='pos'><p style='text-align:left; min-width: 90%; margin:0px 10px 10px 10px;'>" + post_content + "</p></div>");
+      		$("#" + post_id).append("<div class='old-comment'><p id='"+ post_id +"commentcontent', style='text-align:left; min-width: 90%; margin:20px;'>" +comments+"</p></div>");
+      		$("#" + post_id).append("<p align='right'><button class='btn btn-primary' id = '" +post_id +"commentBTN' >comment</button></p>");
+      		$("#" + post_id).append("<div class='com-box' id='" + post_id + "com-box' style='width:100%;'><p class='pr' align='left'><em class='pa'>" + user + 
+      		":</em><br><em></em><textarea name='newpost' id='" + post_id +
+      		"p' class='com' rows=3  style='min-width: 95%' placeholder='write your comments..'></textarea></p><p align='right'>" +
+			"<button id = po_comment onclick=commentpost(" + JSON.stringify(post_id) +",'" + user + "')>post</button> <button id = '" + post_id + "can_comment' >cancel</button> </p></div>");
+      		
+      		
+      		}
+      		
+      		
+      		$(document).ready(function(){
+		  	$("#" + post_id + "commentBTN").click(function(){
+		  	//alert("click");
+		  	$("#" + post_id +"com-box").show();
+		  	});
+		  	
+		  	$("#" + post_id+ "can_comment").click(function(){
+		  	$("#" + post_id +"com-box").hide();
+		  	});
+	  	
+			});
+			
+			
+      	}
+      	
+      	function createOnePost(writer, post_content, post_id, comments, user, receiver) {
+      		//var post_id = JSON.stringify(post_id);
+      		
+      		//alert(JSON.stringify(post_id));
+      		if (receiver == "") {
+      		$("#all_posts").append("<div class='row' id='"+post_id+"row'><div class='col-sm-12'><div class='well' id =" + post_id + "><p style='text-align:left'>" + writer +": </p></div></div></div>");
+      		$("#" + post_id).append("<div class='pos'><p style='text-align:left; min-width: 90%; margin:0px 10px 10px 10px;'>" + post_content + "</p></div>");
+      		$("#" + post_id).append("<div class='old-comment'><p id='"+ post_id +"commentcontent', style='text-align:left; min-width: 90%; margin:20px;'>" +comments+"</p></div>");
+      		$("#" + post_id).append("<p align='right'><button class='btn btn-primary' id = '" +post_id +"commentBTN' >comment</button></p>");
+      		$("#" + post_id).append("<div class='com-box' id='" + post_id + "com-box' style='width:100%;'><p class='pr' align='left'><em class='pa'>" + user + 
+      		":</em><br><em></em><textarea name='newpost' id='" + post_id +
+      		"p' class='com' rows=3  style='min-width: 95%' placeholder='write your comments..'></textarea></p><p align='right'>" +
+			"<button id = po_comment onclick=commentpost(" + JSON.stringify(post_id) +",'" + user + "')>post</button> <button id = '" + post_id + "can_comment' >cancel</button> </p></div>");
+      		} else {
+      		$("#all_posts").append("<div class='row' id='"+post_id+"row'><div class='col-sm-12'><div class='well' id =" + post_id + "><p style='text-align:left'>" + writer + " to " + receiver +": </p></div></div></div>");
+      		$("#" + post_id).append("<div class='pos'><p style='text-align:left; min-width: 90%; margin:0px 10px 10px 10px;'>" + post_content + "</p></div>");
+      		$("#" + post_id).append("<div class='old-comment'><p id='"+ post_id +"commentcontent', style='text-align:left; min-width: 90%; margin:20px;'>" +comments+"</p></div>");
+      		$("#" + post_id).append("<p align='right'><button class='btn btn-primary' id = '" +post_id +"commentBTN' >comment</button></p>");
+      		$("#" + post_id).append("<div class='com-box' id='" + post_id + "com-box' style='width:100%;'><p class='pr' align='left'><em class='pa'>" + user + 
+      		":</em><br><em></em><textarea name='newpost' id='" + post_id +
+      		"p' class='com' rows=3  style='min-width: 95%' placeholder='write your comments..'></textarea></p><p align='right'>" +
+			"<button id = po_comment onclick=commentpost(" + JSON.stringify(post_id) +",'" + user + "')>post</button> <button id = '" + post_id + "can_comment' >cancel</button> </p></div>");
+      		
+      		
+      		}
+      		
+      		
+      		$(document).ready(function(){
+		  	$("#" + post_id + "commentBTN").click(function(){
+		  	//alert(document.getElementById(post_id +"com-box").innerHTML);
+		  	$("#" + post_id +"com-box").show();
+		  	});
+		  	
+		  	$("#" + post_id+ "can_comment").click(function(){
+		  	$("#" + post_id +"com-box").hide();
+		  	});
+	  	
+			});
+			
+			
+      	}
+      	
+      	//var user =<%- JSON.stringify(user)  %> 
+      	//alert("user" + user);
+      	//createOnePost("a", "hello", 10, "new com", user, "");
+      	//createOnePost("c", "hello world", 9, "sth", user, "b");
+      	//alert(document.getElementById(10));
+      	//createOnePost("d","hel", "89asa","another com","b","b");
+      	//$("#5.5").append("bug");
+      	//$("#9").append("bug");
+      	//alert(JSON.stringify(document.getElementById("89asa").innerHTML));
+      	
+      	//refreshPosts();
+      	
+      	
+      	
+      	//while(true) {
+      		setTimeout(function(){
+				//alert("refresh");
+					refreshPosts(); //this will send request again and again;
+			}, 5000);
+      	//}
+      	
+      	//InsertOnePostBefore("d","hel", "89asa","another com","b","best", "2");
+      	
+      </script>
+    
+  
+</div>
+
+
+
+</body>
+</html>
